@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Petal Planner</title>
+    <style>
+        :root {
+            --bg: #FFF5F5;
+            --soft: #F7D6D0;
+            --rose: #E2B4BD;
+            --ink: #4A4A4A;
+            --white: #fff;
+            --line: #ecd8d8;
+            --shadow: 0 8px 24px #4a4a4a12
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg);
+            color: var(--ink);
+            font: 15px/1.5 Arial, sans-serif
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit
+        }
+
+        button {
+            cursor: pointer;
+            border: 0;
+            border-radius: 12px;
+            padding: 10px 14px;
+            background: var(--ink);
+            color: white
+        }
+
+        button.secondary {
+            background: var(--soft);
+            color: var(--ink)
+        }
+
+        button.danger {
+            background: #8b4c58
+        }
+
+        header {
+            padding: 24px 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            background: var(--soft);
+            border-bottom: 1px solid var(--line)
+        }
+
+        h1 {
+            font-size: clamp(24px, 4vw, 34px);
+            margin: 0
+        }
+
+        header p {
+            margin: 4px 0 0
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            min-height: calc(100vh - 100px)
+        }
+
+        aside {
+            padding: 22px 16px;
+            border-right: 1px solid var(--line)
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 8px
+        }
+
+        .nav button {
+            text-align: left;
+            background: transparent;
+            color: var(--ink)
+        }
+
+        .nav button.active,
+        .nav button:hover {
+            background: var(--rose)
+        }
+
+        main {
+            padding: 26px;
+            max-width: 1200px;
+            width: 100%;
+            margin: auto
+        }
+
+        .view {
+            display: none
+        }
+
+        .view.active {
+            display: block
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px
+        }
+
+        h2 {
+            margin: 0 0 5px;
+            font-size: 25px
+        }
+
+        h3 {
+            margin: 0 0 12px
+        }
+
+        .muted {
+            opacity: .72
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 22px
+        }
+
+        .stat,
+        .panel,
+        .task,
+        .entry {
+            background: white;
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: var(--shadow)
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 26px;
+            margin-top: 5px
+        }
+
+        .columns {
+            display: grid;
+            grid-template-columns: 1.1fr .9fr;
+            gap: 16px
+        }
+
+        .task-list,
+        .entry-list {
+            display: grid;
+            gap: 10px
+        }
+
+        .task {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            box-shadow: none
+        }
+
+        .task input[type=checkbox] {
+            margin-top: 5px;
+            accent-color: #9b6874;
+            width: 18px;
+            height: 18px
+        }
+
+        .task-body {
+            flex: 1;
+            min-width: 0
+        }
+
+        .task-title {
+            font-weight: 700;
+            overflow-wrap: anywhere
+        }
+
+        .done .task-title {
+            text-decoration: line-through;
+            opacity: .55
+        }
+
+        .pill {
+            display: inline-block;
+            background: var(--bg);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 3px 8px;
+            font-size: 12px;
+            margin: 5px 4px 0 0
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap
+        }
+
+        .task-actions button {
+            padding: 6px 9px;
+            font-size: 12px
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 5px
+        }
+
+        .field.full {
+            grid-column: 1/-1
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 700
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 11px 12px;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            background: #fffafa;
+            color: var(--ink)
+        }
+
+        textarea {
+            min-height: 75px;
+            resize: vertical
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 14px
+        }
+
+        .hidden {
+            display: none !important
+        }
+
+        .money {
+            font-size: 22px;
+            font-weight: 700
+        }
+
+        .empty {
+            padding: 24px;
+            text-align: center;
+            border: 1px dashed var(--rose);
+            border-radius: 14px;
+            opacity: .75
+        }
+
+        .small {
+            font-size: 12px
+        }
+
+        .top-form {
+            margin-bottom: 18px
+        }
+
+        .inline-form {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap
+        }
+
+        .inline-form>* {
+            flex: 1;
+            min-width: 140px
+        }
+
+        .notice {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 12px;
+            margin: 12px 0;
+            font-size: 13px
+        }
+
+        @media(max-width:760px) {
+            .layout {
+                grid-template-columns: 1fr
+            }
+
+            aside {
+                border-right: 0;
+                border-bottom: 1px solid var(--line);
+                padding: 10px
+            }
+
+            .nav {
+                flex-direction: row;
+                overflow: auto
+            }
+
+            .nav button {
+                white-space: nowrap;
+                padding: 9px 11px
+            }
+
+            main {
+                padding: 16px
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr
+            }
+
+            .columns {
+                grid-template-columns: 1fr
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr
+            }
+
+            .field.full {
+                grid-column: auto
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div>
+            <h1>Petal Planner ✿</h1>
+            <p>Small steps, softer days, stronger savings.</p>
+        </div><button id="headerAdd">＋ Create task</button>
+    </header>
+    <div class="layout">
+        <aside>
+            <nav class="nav">
+                <button class="active" data-view="dashboard">⌂ Dashboard</button>
+                <button data-view="daily">☀ Daily tasks</button><button data-view="weekly">◷ Weekly
+                    tasks</button><button data-view="monthly">▦ Monthly tasks</button>
+                <button data-view="savings">♡ Money saver</button><button data-view="loan">📖 Interest book</button>
+            </nav>
+        </aside>
+        <main>
+            <section id="dashboard" class="view active">
+                <div class="section-head">
+                    <div>
+                        <h2>Your overview</h2>
+                        <div class="muted">A calm place to plan tasks and money.</div>
+                    </div><button id="dashAdd">＋ Create task</button>
+                </div>
+                <div class="stats">
+                    <div class="stat">Tasks completed<strong id="completedCount">0</strong></div>
+                    <div class="stat">Tasks remaining<strong id="remainingCount">0</strong></div>
+                    <div class="stat">Saved so far<strong id="savedTotal">₹0</strong></div>
+                </div>
+                <div class="columns">
+                    <div class="panel">
+                        <h3>Today's tasks</h3>
+                        <div id="todayPreview" class="task-list"></div>
+                    </div>
+                    <div class="panel">
+                        <h3>Money snapshot</h3>
+                        <p class="muted">Your savings goal</p>
+                        <div id="goalSnapshot" class="money">₹0 / ₹0</div>
+                        <div id="loanSnapshot" class="notice">No loan payments recorded yet.</div><button
+                            class="secondary" data-goto="savings">Open money saver</button> <button class="secondary"
+                            data-goto="loan">Open interest book</button>
+                    </div>
+                </div>
+            </section>
+            <section id="daily" class="view">
+                <div class="section-head">
+                    <div>
+                        <h2>Daily tasks</h2>
+                        <p class="muted">Tasks planned for a particular day.</p>
+                    </div><button data-create="daily">＋ Create task</button>
+                </div>
+                <div id="dailyList" class="task-list"></div>
+            </section>
+            <section id="weekly" class="view">
+                <div class="section-head">
+                    <div>
+                        <h2>Weekly tasks</h2>
+                        <p class="muted">Plan tasks for the week and track completion.</p>
+                    </div><button data-create="weekly">＋ Create task</button>
+                </div>
+                <div id="weeklyList" class="task-list"></div>
+            </section>
+            <section id="monthly" class="view">
+                <div class="section-head">
+                    <div>
+                        <h2>Monthly tasks</h2>
+                        <p class="muted">Keep monthly priorities in one place.</p>
+                    </div><button data-create="monthly">＋ Create task</button>
+                </div>
+                <div id="monthlyList" class="task-list"></div>
+            </section>
+            <section id="savings" class="view">
+                <div class="section-head">
+                    <div>
+                        <h2>Money saver ♡</h2>
+                        <p class="muted">Record deposits and set a savings goal.</p>
+                    </div>
+                </div>
+                <div class="columns">
+                    <div class="panel">
+                        <h3>Savings goal</h3>
+                        <form id="goalForm">
+                            <div class="field"><label for="goalAmount">Goal amount (₹)</label><input id="goalAmount"
+                                    type="number" min="0" step=".01" required></div>
+                            <div class="form-actions"><button>Save goal</button></div>
+                        </form>
+                        <div class="notice">Saved: <strong id="savingsAmount">₹0</strong><br>Remaining to goal: <strong
+                                id="goalRemaining">₹0</strong></div>
+                    </div>
+                    <div class="panel">
+                        <h3>Add savings entry</h3>
+                        <form id="savingForm">
+                            <div class="form-grid">
+                                <div class="field"><label for="savingAmount">Amount (₹)</label><input id="savingAmount"
+                                        type="number" min=".01" step=".01" required></div>
+                                <div class="field"><label for="savingDate">Date</label><input id="savingDate"
+                                        type="date" required></div>
+                                <div class="field full"><label for="savingNote">Note</label><input id="savingNote"
+                                        placeholder="e.g. monthly savings"></div>
+                            </div>
+                            <div class="form-actions"><button>Add deposit</button></div>
+                        </form>
+                    </div>
+                </div>
+                <h3 style="margin-top:22px">Savings history</h3>
+                <div id="savingEntries" class="entry-list"></div>
+            </section>
+            <section id="loan" class="view">
+                <div class="section-head">
+                    <div>
+                        <h2>Interest book 📖</h2>
+                        <p class="muted">Keep a record of loan interest payments separately from the outstanding loan
+                            balance.</p>
+                    </div>
+                </div>
+                <div class="columns">
+                    <div class="panel">
+                        <h3>Loan details</h3>
+                        <form id="loanForm">
+                            <div class="form-grid">
+                                <div class="field full"><label for="loanName">Loan name / bank</label><input
+                                        id="loanName" placeholder="e.g. Education loan"></div>
+                                <div class="field"><label for="originalLoan">Original loan amount (₹)</label><input
+                                        id="originalLoan" type="number" min="0" step=".01"></div>
+                                <div class="field"><label for="remainingLoan">Current remaining loan (₹)</label><input
+                                        id="remainingLoan" type="number" min="0" step=".01"></div>
+                            </div>
+                            <div class="form-actions"><button>Save loan details</button></div>
+                        </form>
+                        <div class="notice">YOU CAN CLEAR THE LOAN TRUST !</div>
+                    </div>
+                    <div class="panel">
+                        <h3>Record interest paid</h3>
+                        <form id="interestForm">
+                            <div class="form-grid">
+                                <div class="field"><label for="interestAmount">Interest paid (₹)</label><input
+                                        id="interestAmount" type="number" min=".01" step=".01" required></div>
+                                <div class="field"><label for="interestDate">Payment date</label><input
+                                        id="interestDate" type="date" required></div>
+                                <div class="field full"><label for="interestNote">Note / reference</label><input
+                                        id="interestNote" placeholder="e.g. October interest payment"></div>
+                            </div>
+                            <div class="form-actions"><button>Add payment</button></div>
+                        </form>
+                    </div>
+                </div>
+                <div class="stats" style="margin-top:18px">
+                    <div class="stat">Original loan<strong id="originalDisplay">₹0</strong></div>
+                    <div class="stat">Remaining loan<strong id="remainingDisplay">₹0</strong></div>
+                    <div class="stat">Total interest paid<strong id="interestTotal">₹0</strong></div>
+                </div>
+                <h3>Interest payment history</h3>
+                <div id="interestEntries" class="entry-list"></div>
+            </section>
+        </main>
+    </div>
+    <dialog id="taskDialog"
+        style="border:1px solid var(--line);border-radius:20px;background:var(--bg);color:var(--ink);width:min(540px,calc(100% - 24px));padding:22px;box-shadow:0 20px 70px #4a4a4a33">
+        <div class="section-head">
+            <h2 id="dialogTitle">Create task</h2><button type="button" class="secondary" id="closeDialog">✕</button>
+        </div>
+        <form id="taskForm"><input id="taskId" type="hidden">
+            <div class="form-grid">
+                <div class="field full"><label for="taskName">Task name</label><input id="taskName" required
+                        maxlength="120" placeholder="What would you like to do?"></div>
+                <div class="field"><label for="taskPeriod">Task type</label><select id="taskPeriod">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                    </select></div>
+                <div class="field"><label for="taskDate">Date</label><input id="taskDate" type="date" required></div>
+                <div class="field"><label for="taskPriority">Priority</label><select id="taskPriority">
+                        <option>Medium</option>
+                        <option>High</option>
+                        <option>Low</option>
+                    </select></div>
+                <div class="field"><label for="taskDeadline">Deadline (optional)</label><input id="taskDeadline"
+                        type="time"></div>
+                <div class="field full"><label for="taskNotes">Notes (optional)</label><textarea id="taskNotes"
+                        placeholder="Add a little detail..."></textarea></div>
+            </div>
+            <div class="form-actions"><button type="submit">Save task</button><button type="button" class="secondary"
+                    id="cancelTask">Cancel</button></div>
+        </form>
+    </dialog>
+    <script>
+        const $ = id => document.getElementById(id), today = () => new Date().toLocaleDateString('en-CA');
+        const load = (key, fallback) => { try { return JSON.parse(localStorage.getItem(key)) ?? fallback } catch { return fallback } };
+        let tasks = load('petalTasks', []), savings = load('petalSavings', []), interest = load('petalInterest', []), settings = load('petalSettings', { goal: 0, loanName: '', original: 0, remaining: 0 });
+        const money = n => '₹' + Number(n || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+        const persist = () => { localStorage.setItem('petalTasks', JSON.stringify(tasks)); localStorage.setItem('petalSavings', JSON.stringify(savings)); localStorage.setItem('petalInterest', JSON.stringify(interest)); localStorage.setItem('petalSettings', JSON.stringify(settings)) };
+        function escapeHTML(s = '') { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])) }
+        function showView(id) { document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === id)); document.querySelectorAll('[data-view]').forEach(b => b.classList.toggle('active', b.dataset.view === id)); if (id === 'daily') renderTasks('daily'); if (id === 'weekly') renderTasks('weekly'); if (id === 'monthly') renderTasks('monthly') }
+        document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', () => showView(b.dataset.view)));
+        document.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => showView(b.dataset.goto)));
+        function openTask(period = 'daily', id = '') { const t = tasks.find(x => x.id === id); $('taskForm').reset(); $('taskId').value = t?.id || ''; $('taskName').value = t?.name || ''; $('taskPeriod').value = t?.period || period; $('taskDate').value = t?.date || today(); $('taskPriority').value = t?.priority || 'Medium'; $('taskDeadline').value = t?.deadline || ''; $('taskNotes').value = t?.notes || ''; $('dialogTitle').textContent = t ? 'Edit task' : 'Create task'; $('taskDialog').showModal() }
+        ['headerAdd', 'dashAdd'].forEach(id => $(id).addEventListener('click', () => openTask('daily')));
+        document.querySelectorAll('[data-create]').forEach(b => b.addEventListener('click', () => openTask(b.dataset.create)));
+        $('closeDialog').onclick = $('cancelTask').onclick = () => $('taskDialog').close();
+        $('taskForm').addEventListener('submit', e => { e.preventDefault(); const id = $('taskId').value; const item = { id: id || crypto.randomUUID(), name: $('taskName').value.trim(), period: $('taskPeriod').value, date: $('taskDate').value, priority: $('taskPriority').value, deadline: $('taskDeadline').value, notes: $('taskNotes').value.trim(), done: id ? (tasks.find(t => t.id === id)?.done || false) : false }; if (id) tasks = tasks.map(t => t.id === id ? item : t); else tasks.push(item); persist(); $('taskDialog').close(); renderAll(); showView(item.period) });
+        function taskHTML(t) { return `<article class="task ${t.done ? 'done' : ''}"><input aria-label="Complete ${escapeHTML(t.name)}" type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask('${t.id}')"><div class="task-body"><div class="task-title">${escapeHTML(t.name)}</div><span class="pill">${escapeHTML(t.date)}</span><span class="pill">${escapeHTML(t.priority)} priority</span>${t.deadline ? `<span class="pill">Due ${escapeHTML(t.deadline)}</span>` : ''}${t.notes ? `<p class="muted">${escapeHTML(t.notes)}</p>` : ''}</div><div class="task-actions"><button class="secondary" onclick="editTask('${t.id}')">Edit</button><button class="danger" onclick="deleteTask('${t.id}')">Delete</button></div></article>` }
+        function renderTasks(period) { const list = tasks.filter(t => t.period === period).sort((a, b) => a.date.localeCompare(b.date)); $(period + 'List').innerHTML = list.length ? list.map(taskHTML).join('') : '<div class="empty">No tasks yet. Create your first task.</div>' }
+        function toggleTask(id) { tasks = tasks.map(t => t.id === id ? { ...t, done: !t.done } : t); persist(); renderAll() }
+        function editTask(id) { openTask('', id) } function deleteTask(id) { if (confirm('Delete this task?')) { tasks = tasks.filter(t => t.id !== id); persist(); renderAll() } }
+        function renderSavings() { const total = savings.reduce((s, x) => s + Number(x.amount), 0); $('savedTotal').textContent = money(total); $('savingsAmount').textContent = money(total); $('goalSnapshot').textContent = money(total) + ' / ' + money(settings.goal); $('goalRemaining').textContent = money(Math.max(0, Number(settings.goal) - total)); $('goalAmount').value = settings.goal || ''; $('savingDate').value ||= today(); $('savingEntries').innerHTML = savings.length ? [...savings].sort((a, b) => b.date.localeCompare(a.date)).map(x => `<div class="entry"><strong>${money(x.amount)}</strong> <span class="pill">${escapeHTML(x.date)}</span><div>${escapeHTML(x.note || 'Savings deposit')}</div><div class="form-actions"><button class="danger" onclick="deleteSaving('${x.id}')">Delete</button></div></div>`).join('') : '<div class="empty">Your savings deposits will appear here.</div>' }
+        $('goalForm').addEventListener('submit', e => { e.preventDefault(); settings.goal = Number($('goalAmount').value) || 0; persist(); renderAll() });
+        $('savingForm').addEventListener('submit', e => { e.preventDefault(); savings.push({ id: crypto.randomUUID(), amount: Number($('savingAmount').value), date: $('savingDate').value, note: $('savingNote').value.trim() }); persist(); $('savingForm').reset(); $('savingDate').value = today(); renderAll() });
+        function deleteSaving(id) { if (confirm('Delete this savings entry?')) { savings = savings.filter(x => x.id !== id); persist(); renderAll() } }
+        $('loanForm').addEventListener('submit', e => { e.preventDefault(); settings.loanName = $('loanName').value.trim(); settings.original = Number($('originalLoan').value) || 0; settings.remaining = Number($('remainingLoan').value) || 0; persist(); renderAll() });
+        $('interestForm').addEventListener('submit', e => { e.preventDefault(); interest.push({ id: crypto.randomUUID(), amount: Number($('interestAmount').value), date: $('interestDate').value, note: $('interestNote').value.trim() }); persist(); $('interestForm').reset(); $('interestDate').value = today(); renderAll() });
+        function deleteInterest(id) { if (confirm('Delete this interest payment record?')) { interest = interest.filter(x => x.id !== id); persist(); renderAll() } }
+        function renderLoan() { $('loanName').value = settings.loanName || ''; $('originalLoan').value = settings.original || ''; $('remainingLoan').value = settings.remaining || ''; $('interestDate').value ||= today(); $('originalDisplay').textContent = money(settings.original); $('remainingDisplay').textContent = money(settings.remaining); const total = interest.reduce((s, x) => s + Number(x.amount), 0); $('interestTotal').textContent = money(total); $('loanSnapshot').textContent = interest.length ? `${money(total)} interest paid across ${interest.length} payment record(s). Remaining loan: ${money(settings.remaining)}.` : 'No loan payments recorded yet.'; $('interestEntries').innerHTML = interest.length ? [...interest].sort((a, b) => b.date.localeCompare(a.date)).map(x => `<div class="entry"><strong>${money(x.amount)} interest paid</strong> <span class="pill">${escapeHTML(x.date)}</span><div>${escapeHTML(x.note || 'Interest payment')}</div><div class="form-actions"><button class="danger" onclick="deleteInterest('${x.id}')">Delete</button></div></div>`).join('') : '<div class="empty">No interest payments recorded yet.</div>' }
+        function renderDashboard() { const completed = tasks.filter(t => t.done).length; $('completedCount').textContent = completed; $('remainingCount').textContent = tasks.length - completed; const todays = tasks.filter(t => t.date === today()).sort((a, b) => Number(a.done) - Number(b.done)); $('todayPreview').innerHTML = todays.length ? todays.map(taskHTML).join('') : '<div class="empty">Nothing planned for today yet.</div>' }
+        function renderAll() { renderTasks('daily'); renderTasks('weekly'); renderTasks('monthly'); renderDashboard(); renderSavings(); renderLoan() }
+        $('interestDate').value = today(); $('savingDate').value = today(); renderAll();
+    </script>
+</body>
+
+</html>
